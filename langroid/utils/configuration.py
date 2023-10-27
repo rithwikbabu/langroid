@@ -1,6 +1,9 @@
-from typing import List
+import copy
+import os
+from contextlib import contextmanager
+from typing import Iterator, List
 
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
 from pydantic import BaseSettings
 
 
@@ -15,12 +18,14 @@ class Settings(BaseSettings):
     interactive: bool = True  # interactive mode?
     gpt3_5: bool = True  # use GPT-3.5?
     nofunc: bool = False  # use model without function_call? (i.e. gpt-4)
+    chat_model: str = ""  # language model name, e.g. litellm/ollama/llama2
+    quiet: bool = False  # quiet mode (i.e. suppress all output)?
 
     class Config:
         extra = "forbid"
 
 
-load_dotenv()  # get settings from .env file
+load_dotenv(find_dotenv(usecwd=True))  # get settings from .env file
 settings = Settings()
 
 
@@ -51,3 +56,41 @@ def update_global_settings(cfg: BaseSettings, keys: List[str]) -> None:
 def set_global(key_vals: Settings) -> None:
     """Update the unique global settings object"""
     settings.__dict__.update(key_vals.__dict__)
+
+
+@contextmanager
+def temporary_settings(temp_settings: Settings) -> Iterator[None]:
+    """Temporarily update the global settings and restore them afterward."""
+    original_settings = copy.deepcopy(settings)
+
+    set_global(temp_settings)
+
+    try:
+        yield
+    finally:
+        settings.__dict__.update(original_settings.__dict__)
+
+
+@contextmanager
+def quiet_mode() -> Iterator[None]:
+    """Temporarily set quiet=True in global settings and restore afterward."""
+    original_quiet = settings.quiet
+
+    set_global(Settings(quiet=True))
+
+    try:
+        yield
+    finally:
+        settings.quiet = original_quiet
+
+
+def set_env(settings: BaseSettings) -> None:
+    """
+    Set environment variables from a BaseSettings instance
+    Args:
+        settings (BaseSettings): desired settings
+    Returns:
+    """
+    for field_name, field in settings.__class__.__fields__.items():
+        env_var_name = field.field_info.extra.get("env", field_name).upper()
+        os.environ[env_var_name] = str(settings.dict()[field_name])

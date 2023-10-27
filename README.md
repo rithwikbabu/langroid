@@ -12,18 +12,20 @@
 [![Docs](https://github.com/langroid/langroid/actions/workflows/mkdocs-deploy.yml/badge.svg)](https://github.com/langroid/langroid/actions/workflows/mkdocs-deploy.yml)
 
 [![Static Badge](https://img.shields.io/badge/Documentation-blue?link=https%3A%2F%2Flangroid.github.io%2Flangroid%2F&link=https%3A%2F%2Flangroid.github.io%2Flangroid%2F)](https://langroid.github.io/langroid)
-[![Static Badge](https://img.shields.io/badge/Discord-orange?logoColor=orange&link=https%3A%2F%2Fdiscord.gg%2FZU36McDgDs)](https://discord.gg/ZU36McDgDs)
+[![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/ZU36McDgDs)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/langroid/langroid/blob/main/examples/langroid_quick_examples.ipynb)
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/langroid/langroid.svg)](https://hub.docker.com/r/langroid/langroid)
 ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/langroid/langroid/latest)
 [![Multi-Architecture DockerHub](https://github.com/langroid/langroid/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/langroid/langroid/actions/workflows/docker-publish.yml)
 
+[![Substack](https://img.shields.io/badge/Substack-%23006f5c.svg?style=for-the-badge&logo=substack&logoColor=FF6719)](https://langroid.substack.com/p/langroid-harness-llms-with-multi-agent-programming)
 
 [![Share on Hacker News](https://img.shields.io/badge/-Share%20on%20Hacker%20News-orange)](https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fgithub.com%2Flangroid%2Flangroid&t=Harness%20LLMs%20with%20Multi-Agent%20Programming)
-[![Share on Reddit](https://img.shields.io/badge/-Share%20on%20Reddit-blue)](https://www.reddit.com/submit?url=https%3A%2F%2Fgithub.com%2Flangroid%2Flangroid&title=Harness%20LLMs%20with%20Multi-Agent%20Programming)
+[![Share on Reddit](https://img.shields.io/badge/Reddit-FF4500?style=for-the-badge&logo=reddit&logoColor=white)](https://www.reddit.com/submit?url=https%3A%2F%2Fgithub.com%2Flangroid%2Flangroid&title=Harness%20LLMs%20with%20Multi-Agent%20Programming)
 [![Share on Twitter](https://img.shields.io/twitter/url?style=social&url=https://github.com/langroid/langroid)](https://twitter.com/intent/tweet?text=Langroid%20is%20a%20powerful,%20elegant%20new%20framework%20to%20easily%20build%20%23LLM%20applications.%20You%20set%20up%20LLM-powered%20Agents%20with%20vector-stores,%20assign%20tasks,%20and%20have%20them%20collaboratively%20solve%20problems%20via%20message-transformations.%20https://github.com/langroid/langroid)
-[![Share on LinkedIn](https://img.shields.io/badge/Share%20on-LinkedIn-blue)](https://www.linkedin.com/shareArticle?mini=true&url=https://github.com/langroid/langroid&title=Langroid:%20A%20Powerful,%20Elegant%20Framework&summary=Langroid%20is%20a%20powerful,%20elegant%20new%20framework%20to%20easily%20build%20%23LLM%20applications.%20You%20set%20up%20LLM-powered%20Agents%20with%20vector-stores,%20assign%20tasks,%20and%20have%20them%20collaboratively%20solve%20problems%20via%20message-transformations.)
+[![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/shareArticle?mini=true&url=https://github.com/langroid/langroid&title=Langroid:%20A%20Powerful,%20Elegant%20Framework&summary=Langroid%20is%20a%20powerful,%20elegant%20new%20framework%20to%20easily%20build%20%23LLM%20applications.%20You%20set%20up%20LLM-powered%20Agents%20with%20vector-stores,%20assign%20tasks,%20and%20have%20them%20collaboratively%20solve%20problems%20via%20message-transformations.)
+
 
 </div>
 
@@ -53,8 +55,8 @@ This Multi-Agent paradigm is inspired by the
 [Actor Framework](https://en.wikipedia.org/wiki/Actor_model)
 (but you do not need to know anything about this!). 
 
-Langroid is a fresh take on LLM app-development, where considerable thought has gone 
-into simplifying the developer experience. It does not use `Langchain` or `Llama-Index`.
+`Langroid` is a fresh take on LLM app-development, where considerable thought has gone 
+into simplifying the developer experience; it does not use `Langchain`.
 
 We welcome contributions -- See the [contributions](./CONTRIBUTING.md) document
 for ideas on what to contribute.
@@ -64,7 +66,20 @@ for ideas on what to contribute.
 <details>
 <summary> <b>:fire: Updates/Releases</b></summary>
 
+- **Oct 2023:**
+  - **0.1.102:** `DocChatAgentConfig.n_neighbor_chunks > 0` allows returning context chunks around match. 
+  - **0.1.99:** Convenience batch functions to run tasks, agent methods on a list of inputs concurrently in async mode. See examples in [test_batch.py](https://github.com/langroid/langroid/blob/main/tests/main/test_batch.py).
+  - **0.1.95:** Added support for [Momento Serverless Vector Index](https://docs.momentohq.com/vector-index)
+  - **0.1.94:** Added support for [LanceDB](https://lancedb.github.io/lancedb/) vector-store -- allows vector, Full-text, SQL search.
+  - **0.1.84:** Added [LiteLLM](https://docs.litellm.ai/docs/providers), so now Langroid can be used with over 100 LLM providers (remote or local)! 
+     See guide [here](https://langroid.github.io/langroid/tutorials/non-openai-llms/).
 - **Sep 2023:**
+  - **0.1.78:** Async versions of several Task, Agent and LLM methods; 
+      Nested Pydantic classes are now supported for LLM Function-calling, Tools, Structured Output.    
+  - **0.1.76:** DocChatAgent: support for loading `docx` files (preliminary).
+  - **0.1.72:** Many improvements to DocChatAgent: better embedding model, 
+          hybrid search to improve retrieval, better pdf parsing, re-ranking retrieved results with cross-encoders. 
+  - **Use with local LLama Models:** see tutorial [here](https://langroid.github.io/langroid/blog/2023/09/14/using-langroid-with-local-llms/)
   - **Langroid Blog/Newsletter Launched!**: First post is [here](https://substack.com/notes/post/p-136704592) -- Please subscribe to stay updated. 
   - **0.1.56:** Support Azure OpenAI. 
   - **0.1.55:** Improved [`SQLChatAgent`](https://github.com/langroid/langroid/blob/main/langroid/agent/special/sql/sql_chat_agent.py) that efficiently retrieves relevant schema info when translating natural language to SQL.  
@@ -89,7 +104,7 @@ See [this test](tests/main/test_recipient_tool.py) for example usage.
   - **0.1.27**: Added [support](langroid/cachedb/momento_cachedb.py) 
     for [Momento Serverless Cache](https://www.gomomento.com/) as an alternative to Redis.
   - **0.1.24**: [`DocChatAgent`](langroid/agent/special/doc_chat_agent.py) 
-    now [accepts](langroid/parsing/pdf_parser.py) PDF files or URLs.
+    now [accepts](langroid/parsing/document_parser.py) PDF files or URLs.
 
 </details>
 
@@ -106,7 +121,8 @@ answer the `LeaseExtractor`'s questions, cites the specific excerpt supporting t
 needs, the `LeaseExtractor` LLM presents the information in a structured 
 format using a Function-call. 
 
-Here is what it looks like in action:
+Here is what it looks like in action 
+(a pausable mp4 video is [here](https://vimeo.com/871429249)).
 
 ![Demo](docs/assets/demos/lease-extractor-demo.gif)
 
@@ -126,8 +142,9 @@ Here is what it looks like in action:
   after the agent's own responders.
 - **Modularity, Reusabilily, Loose coupling:** The `Agent` and `Task` abstractions allow users to design
   Agents with specific skills, wrap them in Tasks, and combine tasks in a flexible way.
-- **LLM Support**: Langroid supports OpenAI LLMs including GPT-3.5-Turbo,
-  GPT-4.
+- **LLM Support**: Langroid supports OpenAI LLMs as well as LLMs from hundreds of 
+providers (local/open or remote/commercial) via proxy libraries and local model servers
+such as [LiteLLM](https://docs.litellm.ai/docs/providers) that in effect mimic the OpenAI API. 
 - **Caching of LLM responses:** Langroid supports [Redis](https://redis.com/try-free/) and 
   [Momento](https://www.gomomento.com/) to cache LLM responses.
 - **Vector-stores**: [Qdrant](https://qdrant.tech/) and [Chroma](https://www.trychroma.com/) are currently supported.
@@ -153,9 +170,6 @@ Here is what it looks like in action:
 
 # :gear: Installation and Setup
 
-:whale: For a simpler setup, see the Docker section below, which lets you get started just
-by setting up environment variables in a `.env` file.
-
 ### Install `langroid`
 Langroid requires Python 3.11+. We recommend using a virtual environment.
 Use `pip` to install `langroid` (from PyPi) to your virtual environment:
@@ -163,12 +177,11 @@ Use `pip` to install `langroid` (from PyPi) to your virtual environment:
 pip install langroid
 ```
 The core Langroid package lets you use OpenAI Embeddings models via their API. 
-If you instead want to use the `all-MiniLM-L6-v2` embeddings model
-from from HuggingFace, install Langroid like this:
+If you instead want to use the `sentence-transformers` embedding models from HuggingFace, 
+install Langroid like this: 
 ```bash
 pip install langroid[hf-embeddings]
 ```
-Note that this will install `torch` and `sentence-transformers` libraries.
 
 <details>
 <summary><b>Optional Installs for using SQL Chat with a PostgreSQL DB </b></summary>
@@ -355,6 +368,29 @@ print(response.message)
 </details>
 
 <details>
+<summary> <b> Interaction with non-OpenAI LLM (local or remote) </b> </summary>
+Local model: if model is served at `http://localhost:8000`:
+
+```python
+cfg = OpenAIGPTConfig(
+  chat_model="local/localhost:8000", 
+  chat_context_length=4096
+)
+mdl = OpenAIGPT(cfg)
+# now interact with it as above, or create an Agent + Task as shown below.
+```
+
+If the model is [supported by `liteLLM`](https://docs.litellm.ai/docs/providers), 
+then no need to launch the proxy server.
+Just set the `chat_model` param above to `litellm/[provider]/[model]`, e.g. 
+`litellm/anthropic/claude-instant-1` and use the config object as above.
+For remote models, you will typically need to set API Keys etc as environment variables.
+You can set those based on the LiteLLM docs. 
+If any required environment variables are missing, Langroid gives a helpful error
+message indicating which ones are needed.
+</details>
+
+<details>
 <summary> <b> Define an agent, set up a task, and run it </b> </summary>
 
 ```python
@@ -448,7 +484,7 @@ Langroid leverages Pydantic to support OpenAI's
 [Function-calling API](https://platform.openai.com/docs/guides/gpt/function-calling)
 as well as its own native tools. The benefits are that you don't have to write
 any JSON to specify the schema, and also if the LLM hallucinates a malformed
-tool syntax, Langroid sends the Pydantic validation error (suitiably sanitized) 
+tool syntax, Langroid sends the Pydantic validation error (suitably sanitized) 
 to the LLM so it can fix it!
 
 Simple example: Say the agent has a secret list of numbers, 
@@ -585,6 +621,7 @@ First create a `DocChatAgentConfig` instance, with a
 
 ```python
 from langroid.agent.doc_chat_agent import DocChatAgentConfig
+from langroid.vector_store.qdrantdb import QdrantDBConfig
 config = DocChatAgentConfig(
   doc_paths = [
     "https://en.wikipedia.org/wiki/Language_model",
@@ -594,9 +631,7 @@ config = DocChatAgentConfig(
   llm = OpenAIGPTConfig(
     chat_model=OpenAIChatModel.GPT4,
   ),
-  vecdb=VectorStoreConfig(
-    type="qdrant",
-  ),
+  vecdb=QdrantDBConfig()
 )
 ```
 

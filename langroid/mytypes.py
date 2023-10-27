@@ -1,7 +1,7 @@
 import hashlib
 import uuid
 from enum import Enum
-from typing import Any, List, Union
+from typing import Any, Dict, List, Union
 
 from pydantic import BaseModel, Extra
 
@@ -18,12 +18,30 @@ class Entity(str, Enum):
     AGENT = "Agent"
     LLM = "LLM"
     USER = "User"
+    SYSTEM = "System"
 
 
 class DocMetaData(BaseModel):
     """Metadata for a document."""
 
     source: str = "context"
+    is_chunk: bool = False  # if it is a chunk, don't split
+    id: str | None = None  # unique id for the document
+    window_ids: List[str] = []  # for RAG: ids of chunks around this one
+
+    def dict(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
+        """
+        Override dict method to convert bool fields to int, to appease some
+        downstream libraries,  e.g. Chroma which complains about bool fields in
+        metadata.
+        """
+        original_dict = super().dict(*args, **kwargs)
+
+        for key, value in original_dict.items():
+            if isinstance(value, bool):
+                original_dict[key] = 1 * value
+
+        return original_dict
 
     class Config:
         extra = Extra.allow
@@ -35,9 +53,10 @@ class Document(BaseModel):
     content: str
     metadata: DocMetaData
 
-    def _unique_hash_id(self) -> str:
+    @staticmethod
+    def hash_id(doc: str) -> str:
         # Encode the document as UTF-8
-        doc_utf8 = str(self).encode("utf-8")
+        doc_utf8 = str(doc).encode("utf-8")
 
         # Create a SHA256 hash object
         sha256_hash = hashlib.sha256()
@@ -53,8 +72,11 @@ class Document(BaseModel):
 
         return str(hash_uuid)
 
-    def id(self) -> Any:
-        if hasattr(self.metadata, "id"):
+    def _unique_hash_id(self) -> str:
+        return self.hash_id(str(self))
+
+    def id(self) -> str:
+        if hasattr(self.metadata, "id") and self.metadata.id is not None:
             return self.metadata.id
         else:
             return self._unique_hash_id()

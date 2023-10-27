@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 
 class ChromaDBConfig(VectorStoreConfig):
-    type: str = "chroma"
     collection_name: str = "chroma-langroid"
     storage_path: str = ".chroma/data"
     embedding: EmbeddingModelsConfig = OpenAIEmbeddingsConfig()
@@ -43,6 +42,30 @@ class ChromaDB(VectorStore):
                 replace=self.config.replace_collection,
             )
 
+    def clear_all_collections(self, really: bool = False, prefix: str = "") -> int:
+        """Clear all collections in the vector store with the given prefix."""
+
+        if not really:
+            logger.warning("Not deleting all collections, set really=True to confirm")
+            return 0
+        coll = [c for c in self.client.list_collections() if c.name.startswith(prefix)]
+        if len(coll) == 0:
+            logger.warning(f"No collections found with prefix {prefix}")
+            return 0
+        n_empty_deletes = 0
+        n_non_empty_deletes = 0
+        for c in coll:
+            n_empty_deletes += c.count() == 0
+            n_non_empty_deletes += c.count() > 0
+            self.client.delete_collection(name=c.name)
+        logger.warning(
+            f"""
+            Deleted {n_empty_deletes} empty collections and 
+            {n_non_empty_deletes} non-empty collections.
+            """
+        )
+        return n_empty_deletes + n_non_empty_deletes
+
     def clear_empty_collections(self) -> int:
         colls = self.client.list_collections()
         n_deletes = 0
@@ -52,13 +75,17 @@ class ChromaDB(VectorStore):
                 self.client.delete_collection(name=coll.name)
         return n_deletes
 
-    def list_collections(self) -> List[str]:
+    def list_collections(self, empty: bool = False) -> List[str]:
         """
         List non-empty collections in the vector store.
+        Args:
+            empty (bool, optional): Whether to list empty collections.
         Returns:
             List[str]: List of non-empty collection names.
         """
         colls = self.client.list_collections()
+        if empty:
+            return [coll.name for coll in colls]
         return [coll.name for coll in colls if coll.count() > 0]
 
     def create_collection(self, collection_name: str, replace: bool = False) -> None:
@@ -82,19 +109,30 @@ class ChromaDB(VectorStore):
         if documents is None:
             return
         contents: List[str] = [document.content for document in documents]
-        metadatas: List[dict[str, Any]] = [
-            document.metadata.dict() for document in documents
-        ]
+        # convert metadatas to dicts so chroma can handle them
+        metadata_dicts: List[dict[str, Any]] = [d.metadata.dict() for d in documents]
+        for m in metadata_dicts:
+            # chroma does not handle non-atomic types in metadata
+            m["window_ids"] = ",".join(m["window_ids"])
+
         ids = [str(d.id()) for d in documents]
         self.collection.add(
             # embedding_models=embedding_models,
             documents=contents,
-            metadatas=metadatas,
+            metadatas=metadata_dicts,
             ids=ids,
         )
 
+    def get_all_documents(self) -> List[Document]:
+        results = self.collection.get(include=["documents", "metadatas"])
+        results["documents"] = [results["documents"]]
+        results["metadatas"] = [results["metadatas"]]
+        return self._docs_from_results(results)
+
     def get_documents_by_ids(self, ids: List[str]) -> List[Document]:
         results = self.collection.get(ids=ids, include=["documents", "metadatas"])
+        results["documents"] = [results["documents"]]
+        results["metadatas"] = [results["metadatas"]]
         return self._docs_from_results(results)
 
     def delete_collection(self, collection_name: str) -> None:
@@ -110,7 +148,8 @@ class ChromaDB(VectorStore):
             include=["documents", "distances", "metadatas"],
         )
         docs = self._docs_from_results(results)
-        scores = results["distances"][0]
+        # chroma distances are 1 - cosine.
+        scores = [1 - s for s in results["distances"][0]]
         return list(zip(docs, scores))
 
     def _docs_from_results(self, results: Dict[str, Any]) -> List[Document]:
@@ -122,29 +161,18 @@ class ChromaDB(VectorStore):
         Returns:
             List[Document]: list of Documents
         """
-        if len(results["documents"]) == 0:
+        if len(results["documents"][0]) == 0:
             return []
         contents = results["documents"][0]
         if settings.debug:
             for i, c in enumerate(contents):
                 print_long_text("red", "italic red", f"MATCH-{i}", c)
         metadatas = results["metadatas"][0]
+        for m in metadatas:
+            # restore the stringified list of window_ids into the original List[str]
+            m["window_ids"] = m["window_ids"].split(",")
         docs = [
-            Document(content=d, metadata=DocMetaData.parse_obj(m))
+            Document(content=d, metadata=DocMetaData(**m))
             for d, m in zip(contents, metadatas)
         ]
         return docs
-
-
-# Example usage and testing
-# chroma_db = ChromaDB.from_documents(
-#     collection_name="all-my-documents",
-#     documents=["doc1000101", "doc288822"],
-#     metadatas=[{"style": "style1"}, {"style": "style2"}],
-#     ids=["uri9", "uri10"]
-# )
-# results = chroma_db.query(
-#     query_texts=["This is a query document"],
-#     n_results=2
-# )
-# print(results)
